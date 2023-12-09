@@ -1,12 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Rendering.Universal; // Import the Universal Render Pipeline namespace
+using UnityEngine.Rendering.Universal;
 
 public class VinylStore : MonoBehaviour
 {
     public GameObject planePrefab; // Drag and drop a plane prefab in the Inspector
-    public Vector3 vinylScale;
+
+    // Lists/variables to store predefined spawn points as GameObjects
+    public List<GameObject> spawnPoints;
+    public float albumScale = 2.0f; // Default scale factor
+    public int maxAlbumsToSpawn = 10; // Maximum number of albums to spawn
+
+    private int albumsSpawned = 0; // Counter for the number of albums spawned
 
     void Start()
     {
@@ -27,8 +34,25 @@ public class VinylStore : MonoBehaviour
             return; // Exit if there are no albums inside "Albums"
         }
 
+        if (spawnPoints.Count == 0)
+        {
+            Debug.LogError("Please define spawn points in the Inspector.");
+            return; // Exit if the spawn points list is not set
+        }
+
+        // Shuffle the spawnPoints list randomly
+        ShuffleList(spawnPoints);
+
+        int albumIndex = 0; // Index to cycle through the spawn points
+
         foreach (string albumPath in albums)
         {
+            if (albumsSpawned >= maxAlbumsToSpawn || albumIndex >= spawnPoints.Count)
+            {
+                Debug.Log("Reached the maximum number of albums to spawn or no more spawn points available.");
+                break; // Exit the loop if the maximum albums are spawned or no more spawn points
+            }
+
             string albumName = new DirectoryInfo(albumPath).Name; // Extract the album name from the path
             Debug.Log("Found Album: " + albumName);
 
@@ -45,13 +69,35 @@ public class VinylStore : MonoBehaviour
                 Material newMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit")); // Using URP LIT shader
                 newMaterial.mainTexture = texture;
 
-                // Create a plane and assign the material to it
-                GameObject albumPlane = Instantiate(planePrefab, Vector3.zero, Quaternion.identity);
+                // Get the next spawn point GameObject from the list
+                GameObject spawnPoint = spawnPoints[albumIndex];
+
+                // Create a plane and assign the material to it at the specified spawn point
+                GameObject albumPlane = Instantiate(planePrefab, spawnPoint.transform.position, spawnPoint.transform.rotation);
                 albumPlane.GetComponent<Renderer>().material = newMaterial;
 
-                // Set the scale of the albums
-                albumPlane.transform.localScale = vinylScale;
+                // Set the scale for visibility and arrange the albums
+                albumPlane.transform.localScale = new Vector3(albumScale, albumScale, albumScale);
+
+                // Increment counters
+                albumsSpawned++;
+                albumIndex++;
             }
+        }
+    }
+
+    // Function to shuffle the list randomly
+    private void ShuffleList<T>(List<T> list)
+    {
+        System.Random random = new System.Random();
+        int n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = random.Next(n + 1);
+            T value = list[k];
+            list[k] = list[n];
+            list[n] = value;
         }
     }
 }
