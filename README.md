@@ -9,3 +9,9 @@ Find your album cover. A really good place for high quality album covers is albu
 Put your album cover in your album folder.
 
 And you are done!
+
+# VINYL BACK-SIDES
+STEP 1, IMAGE NAME: The back image should be named "BACK.png" (Also case-sensitive)
+(With the provided model, Continue. If you have the same problems, also continue. If it's orientation is correct, you're good and done here.)
+STEP 2, IMAGE CORRECTION: Flip the image up-side-down, and flip it so when you rotate your head 180 degrees clockwise you can read it.
+You are now done with the back sides
